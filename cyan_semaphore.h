@@ -35,26 +35,26 @@ namespace cyan {
 
 // According to C++20 standard (https://en.cppreference.com/w/cpp/thread/counting_semaphore)
 template <std::ptrdiff_t least_max_value = std::numeric_limits<std::ptrdiff_t>::max()>
-class CountingSemaphore {
+class counting_semaphore {
  public:
-  static constexpr std::ptrdiff_t Max() noexcept {
+  static constexpr std::ptrdiff_t max() noexcept {
     static_assert(least_max_value >= 0, "least_max_value shall be non-negative");
     return least_max_value;
   }
 
-  explicit CountingSemaphore(std::ptrdiff_t desired = 0) : counter_(desired) {
-    assert(desired >= 0 && desired <= Max());
+  explicit counting_semaphore(std::ptrdiff_t desired = 0) : counter_(desired) {
+    assert(desired >= 0 && desired <= max());
   }
 
-  ~CountingSemaphore() = default;
+  ~counting_semaphore() = default;
 
-  CountingSemaphore(const CountingSemaphore&) = delete;
-  CountingSemaphore& operator=(const CountingSemaphore&) = delete;
+  counting_semaphore(const counting_semaphore&) = delete;
+  counting_semaphore& operator=(const counting_semaphore&) = delete;
 
-  void Release(std::ptrdiff_t update = 1) {
+  void release(std::ptrdiff_t update = 1) {
     {
       std::lock_guard<decltype(mutex_)> lock{mutex_};
-      assert(update >= 0 && update <= Max() - counter_);
+      assert(update >= 0 && update <= max() - counter_);
       counter_ += update;
       if (counter_ <= 0) {
         return;
@@ -63,13 +63,13 @@ class CountingSemaphore {
     cv_.notify_all();
   }
 
-  void Acquire() {
+  void acquire() {
     std::unique_lock<decltype(mutex_)> lock{mutex_};
     cv_.wait(lock, [&]() { return counter_ > 0; });
     --counter_;
   }
 
-  bool TryAcquire() noexcept {
+  bool try_acquire() noexcept {
     std::unique_lock<decltype(mutex_)> lock{mutex_};
     if (counter_ <= 0) {
       return false;
@@ -79,19 +79,19 @@ class CountingSemaphore {
   }
 
   template <class Rep, class Period>
-  bool TryAcquireFor(const std::chrono::duration<Rep, Period>& rel_time) {
+  bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time) {
     const auto timeout_time = std::chrono::steady_clock::now() + rel_time;
-    return DoTryAcquireWait(timeout_time);
+    return do_try_acquire_wait(timeout_time);
   }
 
   template <class Clock, class Duration>
-  bool TryAcquireUntil(const std::chrono::time_point<Clock, Duration>& abs_time) {
-    return DoTryAcquireWait(abs_time);
+  bool try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time) {
+    return do_try_acquire_wait(abs_time);
   }
 
  private:
   template <typename Clock, typename Duration>
-  bool DoTryAcquireWait(const std::chrono::time_point<Clock, Duration>& timeout_time) {
+  bool do_try_acquire_wait(const std::chrono::time_point<Clock, Duration>& timeout_time) {
     std::unique_lock<decltype(mutex_)> lock{mutex_};
     if (!cv_.wait_until(lock, timeout_time, [&]() { return counter_ > 0; })) {
       return false;
@@ -106,6 +106,6 @@ class CountingSemaphore {
   std::mutex mutex_;
 };
 
-using BinarySemaphore = CountingSemaphore<1>;
+using binary_semaphore = counting_semaphore<1>;
 
 }  // namespace cyan
