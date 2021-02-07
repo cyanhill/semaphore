@@ -1,6 +1,7 @@
 # semaphore
 This is header-only, no external dependency C++11 library. According to C++20 standard (https://en.cppreference.com/w/cpp/thread/counting_semaphore)
 
+## example
 ```cpp
 #include "cyan_semaphore.h"
 
@@ -52,6 +53,7 @@ int main() {
 }
 ```
 
+## output
 ```
 [main] Send the signal
 [thread] Got the signal
