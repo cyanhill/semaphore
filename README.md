@@ -12,12 +12,12 @@ counting_semaphore implementation. This is header-only, no external dependency C
 // global binary semaphore instances
 // object counts are set to zero
 // objects are in non-signaled state
-cyan::BinarySemaphore smphSignalMainToThread(0), smphSignalThreadToMain(0);
+cyan::binary_semaphore smphSignalMainToThread(0), smphSignalThreadToMain(0);
 
 void ThreadProc() {
   // wait for a signal from the main proc
   // by attempting to decrement the semaphore
-  smphSignalMainToThread.Acquire();
+  smphSignalMainToThread.acquire();
 
   // this call blocks until the semaphore's count
   // is increased from the main proc
@@ -31,7 +31,7 @@ void ThreadProc() {
   std::cout << "[thread] Send the signal\n";  // message
 
   // signal the main proc back
-  smphSignalThreadToMain.Release();
+  smphSignalThreadToMain.release();
 }
 
 int main() {
@@ -42,11 +42,11 @@ int main() {
 
   // signal the worker thread to start working
   // by increasing the semaphore's count
-  smphSignalMainToThread.Release();
+  smphSignalMainToThread.release();
 
   // wait until the worker thread is done doing the work
   // by attempting to decrement the semaphore's count
-  smphSignalThreadToMain.Acquire();
+  smphSignalThreadToMain.acquire();
 
   std::cout << "[main] Got the signal\n";  // response message
   thrWorker.join();
