@@ -42,7 +42,7 @@ class counting_semaphore {
     return least_max_value;
   }
 
-  explicit counting_semaphore(std::ptrdiff_t desired = 0) : counter_(desired) {
+  explicit counting_semaphore(std::ptrdiff_t desired) : counter_(desired) {
     assert(desired >= 0 && desired <= max());
   }
 
